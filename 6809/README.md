@@ -1,3 +1,11 @@
+# The CoCo days
+
+  - [July 1984](https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%202%20-%20July%201984.pdf) #1 Building the PIA
+  - [August 1984](https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%203%20-%20August%201984.pdf) #2 IC Tester
+  - [October 1984](https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%205%20-%20October%201984.pdf) #3 Logo turtle
+  - [January 1985](https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%208%20-%20January%201985.pdf) #4 Armatron
+  - [February 1985](https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%209%20-%20February%201985.pdf) #5 Armatron 
+
 # 6809 Board
 
 I am using the basics from here: [https://easyeda.com/tranter/6809-Single-Board-Computer](https://easyeda.com/tranter/6809-Single-Board-Computer)
