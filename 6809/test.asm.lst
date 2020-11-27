@@ -1,0 +1,21 @@
+#### Labels
+top              = 0xFF00
+
+#### Defines
+_CPU             = 6809
+
+                  ._CPU = 6809
+                  
+                  0xFF00:
+                  
+                  top:
+                  
+FF00: 8E 00 05         LDX   #5
+FF03: 1E 89            EXG   A,  B
+FF05: 34 36            PSHS  Y, X, B, A
+FF07: 35 B6            PULS  A, B, X, Y, PC
+                  
+FF09: 6E 9F 01 00      JMP [0x100]
+                  
+FF0D: 12               NOP
+                  

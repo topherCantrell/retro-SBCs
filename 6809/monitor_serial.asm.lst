@@ -1,0 +1,191 @@
+#### Labels
+DoExec           = 0xFF5E
+DoHello          = 0xFF25
+DoLoad           = 0xFF45
+DoRead           = 0xFF2B
+DoWrite          = 0xFF36
+ReadByte         = 0xFF70
+ReadWord         = 0xFF65
+SendByte         = 0xFF7A
+load             = 0xFF50
+main             = 0xFF0E
+top              = 0xFF00
+
+#### Defines
+ACI_CONTROL      = 0xC000
+ACI_DATA         = 0xC001
+ERROR            = 0x0066
+HELLO            = 0x00A5
+OK               = 0x0088
+PIA_A_CTRL       = 0x8001
+PIA_A_DATA       = 0x8000
+PIA_B_CTRL       = 0x8003
+PIA_B_DATA       = 0x8002
+STACK            = 0x0200
+TMP2             = 0x0202
+TMP3             = 0x0203
+_CPU             = 6809
+
+                  ._CPU = 6809
+                  
+                  .HELLO = 0xA5  ; Startup value (we are alive)
+                  .ERROR = 0x66  ; Invalid command
+                  .OK    = 0x88  ; OK (write and load)
+                  
+                  .STACK = 0x200 ; Builds towards 0x0000
+                  
+                  .TMP2  = 0x202 ; Used to combine two bytes ...
+                  .TMP3  = 0x203 ; ... into a word
+                  
+                  ; PIA
+                  .PIA_A_DATA = 0x8000
+                  .PIA_A_CTRL = 0x8001
+                  .PIA_B_DATA = 0x8002
+                  .PIA_B_CTRL = 0x8003
+                  ; TODO: bit breakdowns of control
+                  
+                  ; ACI
+                  .ACI_CONTROL = 0xC000
+                  .ACI_DATA = 0xC001
+                  ; Write to control:
+                  ;   I_TT_WWW_CC
+                  ;   I =   0: receive interrupt disabled
+                  ;         1: receive interrupt enabled
+                  ;   T =  00: RTS=low, transmit interrupt disabled
+                  ;        01: RTS=low, transmit interrupt enabled
+                  ;        10: RTS=high, transmit interrupt disabled
+                  ;        11: RTS=low, transmit a break, transmit interrupt disabled
+                  ;   W = 000: 7E2
+                  ;       001: 7O2
+                  ;       010: 7E1
+                  ;       011: 7O1
+                  ;       100: 8N2
+                  ;       101: 8N1
+                  ;       110: 8E1
+                  ;       111: 8O1
+                  ;   C =  00: divide by 1
+                  ;        01: divide by 16
+                  ;        10: divide by 64
+                  ;        11: master reset
+                  ; Read from control:
+                  ;  bit
+                  ;   0 = 1: receive data register full
+                  ;   1 = 1: transmit data register empty
+                  ;   2 = 1: data carrier detect
+                  ;   3 = 1: clear to send
+                  ;   4 = 1: framing error
+                  ;   5 = 1: receiver overrun
+                  ;   6 = 1: parity error
+                  ;   7 = 1: interrupt request
+                  ;
+                  ; For my environment: 0_00_101_01
+                  ;   I =   0: Receive interrupts off
+                  ;   T =  00: Transmit interrupt off
+                  ;   W = 101: 8N1
+                  ;   C =  01: Divide by 16 (115200)
+                  
+                  0xFF00:
+                  
+                  top:
+FF00: 10 CE 02 00      LDS    #STACK           ; Initialize stack
+                  
+FF04: 86 07            LDA    #0x7             ; Master reset
+FF06: B7 C0 00         STA    ACI_CONTROL      ; Reset the UART
+FF09: 86 15            LDA    #0x15            ; 8N1 + divide by 16
+FF0B: B7 C0 00         STA    ACI_CONTROL      ; Configure communications
+                  
+                  main:
+FF0E: 8D 60            BSR    ReadByte         ; Get the command byte
+                  
+FF10: 4A               DECA                    ; 1 = ...
+FF11: 27 18            BEQ    DoRead           ; ... read byte
+FF13: 4A               DECA                    ; 2 = ...
+FF14: 27 20            BEQ    DoWrite          ; ... do write
+FF16: 4A               DECA                    ; 3 = ...
+FF17: 27 2C            BEQ    DoLoad           ; ... multi-byte write
+FF19: 4A               DECA                    ; 4 = ...
+FF1A: 27 42            BEQ    DoExec           ; ... execute
+FF1C: 4A               DECA                    ; 5 = ...
+FF1D: 27 06            BEQ    DoHello          ; ... return HELLO value
+                  
+FF1F: 86 66            LDA    #ERROR           ; Return ...
+FF21: 8D 57            BSR    SendByte         ; ... error value
+                  
+FF23: 20 E9            BRA    main             ; Back to top of loop
+                  
+                  ; 05
+                  DoHello:
+FF25: 86 A5            LDA    #HELLO           ; Send the ...
+FF27: 8D 51            BSR    SendByte         ; ... hello value
+FF29: 20 E3            BRA    main             ; Back to top of loop
+                  
+                  ; 01 AA AA -> memory[AAAA]
+                  DoRead:
+FF2B: 8D 38            BSR    ReadWord         ; Get the address ...
+FF2D: BE 02 02         LDX    TMP2             ; ... to X
+FF30: A6 84            LDA    ,X               ; Read memory
+FF32: 8D 46            BSR    SendByte         ; Output the value
+FF34: 20 D8            BRA    main             ; Back to main loop
+                  
+                  ; 02 AA AA VV -> OK
+                  DoWrite:
+FF36: 8D 2D            BSR    ReadWord         ; Get the address ...
+FF38: BE 02 02         LDX    TMP2             ; ... to X
+FF3B: 8D 33            BSR    ReadByte         ; Get the value
+FF3D: A7 84            STA    ,X               ; Write the value to memory
+FF3F: 86 88            LDA    #OK              ; Output ...
+FF41: 8D 37            BSR    SendByte         ; ... OK
+FF43: 20 C9            BRA    main             ; Back to main loop
+                  
+                  ; 03 AA AA LL LL vv vv ... -> OK
+                  DoLoad:
+FF45: 8D 1E            BSR    ReadWord         ; Read the address ...
+FF47: 10 BE 02 02      LDY    TMP2             ; ... to Y
+FF4B: 8D 18            BSR    ReadWord         ; Read the count ...
+FF4D: BE 02 02         LDX    TMP2             ; ... to X
+                  load:
+FF50: 8D 1E            BSR    ReadByte         ; Read the next data byte
+FF52: A7 A0            STA    ,Y+              ; Store the data to memory
+FF54: 30 1F            LEAX   -1,X             ; All bytes loaded?
+FF56: 26 F8            BNE    load             ; No ... go back for them all
+FF58: 86 88            LDA    #OK              ; Output ...
+FF5A: 8D 1E            BSR    SendByte         ; ... OK
+FF5C: 20 B0            BRA    main             ; Back to main loop
+                  
+                  ; 04 AA AA
+                  DoExec:
+FF5E: 8D 05            BSR    ReadWord         ; Get the address to call ...
+FF60: BE 02 02         LDX    TMP2             ; ... to X
+FF63: 6E 84            JMP    ,X               ; Jump to it
+                  
+                  ReadWord:
+FF65: 8D 09            BSR    ReadByte         ; Get MSB
+FF67: B7 02 02         STA    TMP2             ; To memory temporary
+FF6A: 8D 04            BSR    ReadByte         ; Get the length LSB
+FF6C: B7 02 03         STA    TMP2+1           ; To memory temporary
+FF6F: 39               RTS                     ; Done
+                  
+                  ReadByte:
+FF70: B6 C0 00         LDA    ACI_CONTROL      ; Data ...
+FF73: 44               LSRA                    ; ... available?
+FF74: 24 FA            BCC    ReadByte         ; No ... wait
+FF76: B6 C0 01         LDA    ACI_DATA         ; Get the data
+FF79: 39               RTS
+                  
+                  SendByte:
+FF7A: B6 C0 00         LDA    ACI_CONTROL      ; Buffer ...
+FF7D: 44               LSRA                    ; ... is ...
+FF7E: 44               LSRA                    ; ... full?
+FF7F: 24 F9            BCC   SendByte          ; Yes ... wait
+FF81: B7 C0 01         STA   ACI_DATA          ; Send the data
+FF84: 39               RTS
+                  
+                  0xFFF0:
+FFF0: FF 00            .word top
+FFF2: FF 00            .word top
+FFF4: FF 00            .word top
+FFF6: FF 00            .word top
+FFF8: FF 00            .word top
+FFFA: FF 00            .word top
+FFFC: FF 00            .word top
+FFFE: FF 00            .word top  ; RESET

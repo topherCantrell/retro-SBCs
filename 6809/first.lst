@@ -1,0 +1,33 @@
+
+FFC0: 86 00        LDA   #$0     ; Enable the ...
+FFC2: B7 80 01     STA   $8001   ; ... direction ...
+FFC5: B7 80 03     STA   $8003   ; ... registers
+
+FFC8: 86 FF        LDA   #$FF    ; All ...    
+FFCA: B7 80 00     STA   $8000   ; ... bits are ...
+FFCD: B7 80 02     STA   $8002   ; ... outputs
+
+FFD0: 86 04        LDA   #$4     ; Enable the ...
+FFD2: B7 80 01     STA   $8001   ; ... data ...
+FFD5: B7 80 03     STA   $8003   ; ... registers
+
+FFD8: 86 A5        LDA   #$A5    ; Value 10100101 ...
+FFDA: B7 80 00     STA   $8000   ; ... to A
+
+FFDD: 86 96        LDA   #$96    ; Value 10011001 ...
+FFDF: B7 80 02     STA   $8002   ; ... to B
+
+FFE2: 20 FE        BRA   $FFE2   ; Loop forever
+
+FFE4: FF FF FF FF 
+FFE8: FF FF FF FF 
+FFEC: FF FF FF FF
+
+FFF0: FF C0 ; 6809 exceptions
+FFF2: FF C0 ; SWI3
+FFF4: FF C0 ; SWI2
+FFF6: FF C0 ; FIRQ
+FFF8: FF C0 ; IRQ
+FFFA: FF C0 ; SWI
+FFFC: FF C0 ; NMI
+FFFE: FF C0 ; Reset
