@@ -27,6 +27,14 @@ https://www.pinterest.cl/pin/119415827600935768/
 # Hot CoCo Magazine
 
 https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%202%20-%20July%201984.pdf
+  - coco1.jpg
+  - coco2.jpg
+  - coco3.jpg
+  - coco4.jpg 
+
+https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchable%20image)/Hot%20Coco%20Vol.%202%20No.%208%20-%20January%201985.pdf
+  -  coco5.jpg
+  -  coco6.jpg
 
 ![](Mims_1.jpg)
 
@@ -39,3 +47,15 @@ https://colorcomputerarchive.com/repo/Documents/Magazines/Hot%20CoCo%20(Searchab
 ![](drill.jpg)
 
 ![](etch.jpg)
+
+![](coco1.jpg)
+
+![](coco2.jpg)
+
+![](coco3.jpg)
+
+![](coco4.jpg)
+
+![](coco5.jpg)
+
+![](coco6.jpg)
