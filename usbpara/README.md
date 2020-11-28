@@ -1,0 +1,3 @@
+# Schematic
+
+![](usbparaSch.jpg)
