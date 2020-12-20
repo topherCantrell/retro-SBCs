@@ -4,12 +4,10 @@
 
 .STACK      = 0x200    ; Builds towards 0x0000
 
-.guess      = 0x202    ; Player's guess
-.compNum    = 0x203    ; Computer's number
-.randBCD    = 0x204    ; Random compNum
-.prevSwitch = 0x205    ; Previous value read from switches
-.tmp1 = 0x206          ; Temporary use
-.tmp2 = 0x207          ; Temporary use
+.guess      = 0x200    ; Player's guess
+.compNum    = 0x201    ; Computer's number
+.randBCD    = 0x202    ; Random compNum
+.prevSwitch = 0x203    ; Previous value read from switches
 
 0x2000:
 
@@ -55,9 +53,9 @@ SwitchPressed:
    PSHS  B             ; Going to use
    JSR   ReadSwitches  ; Current value of switches
    TFR   A,B           ; Hold for later
-   STA   tmp1          ; Hold for later
+   STA   ,-S           ; Hold on stack
    EORA  prevSwitch    ; Only keep the changes
-   ANDA  tmp1          ; And only new downs
+   ANDA  ,S+           ; And only new downs
    STB   prevSwitch    ; New previous-value
    PULS  B,PC
 
@@ -91,12 +89,12 @@ Delay:
 ; B = number of inner loops
 ; return A accumulated switch presses
    PSHS  X,B           ; Going to use
-   CLR   tmp1          ; Accumulate switch presses
+   CLR   ,-S           ; Accumulate switch presses
 
 del22:
    JSR   SwitchPressed ; Get switch transitions
-   ORA   tmp1          ; OR them ...
-   STA   tmp1          ; ... to return
+   ORA   ,S            ; OR them ...
+   STA   ,S            ; ... to return
 
    LDX   #0x0180       ; Inner delay
 del21:
@@ -107,7 +105,7 @@ del21:
    BNE   del21         ; ... delay
    DECB                ; Do outer ...
    BNE   del22         ; ... delay
-   LDA   tmp1          ; Return accumulated presses
+   LDA   ,S+           ; Return accumulated presses
    PULS  B,X,PC        ; Restore and out
 
 Game:
@@ -183,14 +181,14 @@ lower:
 
 flash:
    PSHS  X,B,A         ; We'll use these
-   STA   tmp2          ; Hold the hint value
+   STA   ,-S           ; Hold the hint value
    LDX   #2            ; Two flashes
 flash1:
    LDA   #0xFF         ; Blank the ...
    JSR   WriteBCD      ; ... display
    LDB   #10           ; Short ...
    JSR   Delay         ; ... delay
-   LDA   tmp2          ; Show ...
+   LDA   ,S            ; Show ...
    JSR   WriteBCD      ; ... hint
    LDB   #20           ; Longer ...
    JSR   Delay         ; ... delay
@@ -200,6 +198,7 @@ flash1:
    JSR   WriteBCD      ; ... display
    LDB   #10           ; Short ...
    JSR   Delay         ; ... delay
+   LEAS  1,S           ; Drop local variable
    PULS  A,B,X,PC      ; Restore and out
 
 win:
@@ -252,8 +251,8 @@ INCok:
    LSLA                ; ... to ...
    LSLA                ; ... upper ...
    LSLA                ; ... nibble
-   STA   tmp1          ; Hold upper
-   ORB   tmp1          ; Add in the lower
+   STA   ,-S           ; Hold upper
+   ORB   ,S+           ; Add in the lower
    TFR   B,A
    PULS  B,PC          ; Restore and out
 
