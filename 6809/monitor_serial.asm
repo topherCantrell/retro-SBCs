@@ -1,6 +1,7 @@
 ._CPU = 6809
 
-.HELLO = 0xA5  ; Startup value (we are alive)
+.HELLO = 0xA5  ; Hello value (we are alive)
+.POWER = 0xA4  ; Power on value
 .ERROR = 0x66  ; Invalid command
 .OK    = 0x88  ; OK (write and load)
 
@@ -21,6 +22,9 @@ top:
     LDA    #0x15            ; 8N1 + divide by 16
     STA    ACI_CONTROL      ; Configure communications
 
+    LDA    #POWER           ; Power on ...
+    BSR    WriteByte        ; ... indicator
+
 main:
     BSR    ReadByte         ; Get the command byte
 
@@ -36,14 +40,14 @@ main:
     BEQ    DoHello          ; ... return HELLO value
 
     LDA    #ERROR           ; Return ...
-    BSR    SendByte         ; ... error value
+    BSR    WriteByte        ; ... error value
 
     BRA    main             ; Back to top of loop
 
 ; 05
 DoHello:
     LDA    #HELLO           ; Send the ...
-    BSR    SendByte         ; ... hello value
+    BSR    WriteByte        ; ... hello value
     BRA    main             ; Back to top of loop
 
 ; 01 AA AA -> memory[AAAA]
@@ -51,7 +55,7 @@ DoRead:
     BSR    ReadWord         ; Get the address ...
     LDX    TMP2             ; ... to X
     LDA    ,X               ; Read memory
-    BSR    SendByte         ; Output the value
+    BSR    WriteByte        ; Output the value
     BRA    main             ; Back to main loop
 
 ; 02 AA AA VV -> OK
@@ -61,7 +65,7 @@ DoWrite:
     BSR    ReadByte         ; Get the value
     STA    ,X               ; Write the value to memory
     LDA    #OK              ; Output ...
-    BSR    SendByte         ; ... OK
+    BSR    WriteByte        ; ... OK
     BRA    main             ; Back to main loop
 
 ; 03 AA AA LL LL vv vv ... -> OK
@@ -76,7 +80,7 @@ load:
     LEAX   -1,X             ; All bytes loaded?
     BNE    load             ; No ... go back for them all
     LDA    #OK              ; Output ...
-    BSR    SendByte         ; ... OK
+    BSR    WriteByte        ; ... OK
     BRA    main             ; Back to main loop
 
 ; 04 AA AA
@@ -98,13 +102,16 @@ ReadByte:
     BCC    ReadByte         ; No ... wait
     LDA    ACI_DATA         ; Get the data
     RTS
-    
-SendByte:
+
+WriteByte:
+    PSHS   A                ; Hold the output value
+WriteWait:
     LDA    ACI_CONTROL      ; Buffer ...
     LSRA                    ; ... is ...
     LSRA                    ; ... full?
-    BCC   SendByte          ; Yes ... wait
-    STA   ACI_DATA          ; Send the data
+    BCC    WriteWait        ; Yes ... wait
+    PULS   A                ; Restore the output value
+    STA    ACI_DATA         ; Send the data
     RTS
 
 0xFFF0:

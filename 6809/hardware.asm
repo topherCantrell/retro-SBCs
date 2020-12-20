@@ -30,8 +30,8 @@
 ;        11: master reset
 ; Read from control:
 ;  bit
-;   0 = 1: receive data register full
-;   1 = 1: transmit data register empty
+;   0 = 1: receive data register full (1 means you can read)
+;   1 = 1: transmit data register empty (1 means you can write)
 ;   2 = 1: data carrier detect
 ;   3 = 1: clear to send
 ;   4 = 1: framing error
