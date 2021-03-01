@@ -58,5 +58,9 @@ TODO check Stella for more on the RIOT
 8000 - BFFF RAM
 
 C000 - FFFF ROM
+
+FFFA - FFFB NMI
+FFFC - FFFD RESET
+FFFE - FFFF IRQ
  
 ```
