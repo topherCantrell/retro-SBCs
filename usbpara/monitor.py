@@ -1,146 +1,115 @@
 import serial
 import time
 
-def read(ser,address):  # 1
-    cmd = [1, (address>>8)&0xFF, address & 0xFF]
-    ser.write(bytes(cmd))
-    ret = ser.read()
-    return ret
+class MonitorError(Exception):
+    pass
 
-def write(ser,address,value):  # 2
-    cmd = [2, (address>>8)&0xFF, address & 0xFF, value &0xFF]
-    ser.write(bytes(cmd))
-    ret = ser.read()
-    return ret
-
-def load(ser,address,data):  # 3
-    len_data = len(data)
-    cmd = [3, (address>>8)&0xFF, address & 0xFF, (len_data>>8)&0xFF, len_data & 0xFF]
-    ser.write(bytes(cmd))
-    ser.write(data)
-    ret = ser.read()
-    return ret
-
-def execute(ser,address):  # 4
-    cmd = [4, (address>>8)&0xFF, address & 0xFF]
-    ser.write(bytes(cmd))
-    ret = ser.read()
-    return ret
-
-def hello(ser):  # 5
-    ser.write(b'\x05')
-    v = ser.read()
-    return v
-
-def hello_prop(ser):  # 6
-    ser.write(b'\x06')
-    v = ser.read()
-    return v
-
-def raw_read(ser):  # 7
-    ser.write(b'\x07')
-    v = ser.read()
-    return v
-
-def load_run(ser,address,data):
-    load(ser,address,data)
-    execute(ser,address)
+class Monitor:
     
+    def __init__(self,port_name):
+        self._ser = serial.Serial('COM7',115200)
+        
+    def close(self):
+        self._ser.close()
+        
+    def serial_read(self):
+        v = self._ser.read()
+        return v[0]
+    
+    def serial_write(self,value):
+        self._ser.write(bytes([value]))
+    
+    def hello(self):  
+        self._ser.write(b'\x05')
+        v = self._ser.read()
+        if v[0]!=0xA5:
+            raise MonitorError(f'Unexpected response to hello: {hex(v[0])}')        
+    
+    def prop_hello(self):
+        '''just for the propeller GPIO'''
+        self._ser.write(b'\x06')
+        v = self._ser.read()
+        if v[0]!=0xCC:
+            raise MonitorError(f'Unexpected response to hello: {hex(v[0])}') 
+    
+    def prop_raw_read(self):
+        '''just for the propeller GPIO'''
+        self._ser.write(b'\x07')
+        v = self._ser.read()
+        return v[0]
+
+    def read(self,address):
+        cmd = [1, (address>>8)&0xFF, address & 0xFF]
+        self._ser.write(bytes(cmd))
+        ret = self._ser.read()
+        return ret[0]
+
+    def write(self,address,value):
+        cmd = [2, (address>>8)&0xFF, address & 0xFF, value &0xFF]
+        self._ser.write(bytes(cmd))
+        v = self._ser.read()
+        if v[0]!=0x88:
+            raise MonitorError(f'Unexpected response to write: {hex(v[0])}') 
+
+    def load(self,address,data):
+        len_data = len(data)
+        cmd = [3, (address>>8)&0xFF, address & 0xFF, (len_data>>8)&0xFF, len_data & 0xFF]
+        self._ser.write(bytes(cmd))
+        self._ser.write(data)
+        v = self._ser.read()
+        if v[0]!=0x88:
+            raise MonitorError(f'Unexpected response to load: {hex(v[0])}') 
+
+    def execute(self,address):
+        cmd = [4, (address>>8)&0xFF, address & 0xFF]
+        self._ser.write(bytes(cmd))
+        # Nothing coming back ... we left the monitor
+
+    def load_run(self,address,data):
+        self.load(address,data)
+        self.execute(address)
+        
+    def load_file(self,address,filename):
+        with open(filename,'rb') as f:
+            data = f.read()            
+        self.load(address,data)
+        
+    def load_run_file(self,address,filename):
+        with open(filename,'rb') as f:
+            data = f.read()            
+        self.load_run(address,data)
+    
+        
 def main():
+    mon = Monitor('COM7')
+    a = mon.hello()
     
-    with serial.Serial('COM7',115200) as ser: # SILVER
-        with open('../6809_hilo/hilo.asm.bin','rb') as f:
-            data = f.read()
-            
-        load_run(ser,0x2000,data)
+    a = mon.read(0xFF59)
+    print(hex(a))
+        
+    a = mon.read(0x8765)
+    print(hex(a))
     
-def main4():
-    with serial.Serial('COM7',115200) as ser: # BLACK
-        res = hello(ser)
-        print('# Hello:',res)
-        
-        write(ser,0x8001,0) # select the ...
-        write(ser,0x8003,0) # ... data direction regs
-        write(ser,0x8000,0b1_1111111) # All outputs
-        write(ser,0x8002,0b00000_111) # Inputs and outputs
-        write(ser,0x8001,4) # select the ...
-        write(ser,0x8003,4) # ... data registers
-        
-        #                  A gfedcba
-        write(ser,0x8000,0b1_0000001)
-        #                        DCB
-        write(ser,0x8002,0b00000_100)
-        
-        # Read the buttons
-        while(True):
-            a = read(ser,0x8002)
-            print('#',hex(a[0]))
-            time.sleep(1)
+    mon.write(0x8765,0x98)
     
-def main3():
-    with serial.Serial('COM7',115200) as ser: # BLACK
-        res = hello(ser)
-        print('# Hello:',res)
-        
-        for x in range(20):
-            a = read(ser,x+0xFF00)
-            print('#',hex(a[0]))
-
-def main2():
+    a = mon.read(0x8765)
+    print(hex(a))
     
-    with serial.Serial('COM7',115200) as ser:  # SILVER
-    #with serial.Serial('COM3',115200) as ser: # BLACK
-              
-        res = hello_prop(ser)
-        print('# Hello prop:',res)
+    mon.load_run_file(0x8000,'../6502/scrap.asm.bin')
+    
+    time.sleep(2)
+    
+    # Power on value
+    a = mon.serial_read()
+    print(hex(a))
+    
+    a = mon.read(0x8222)
+    print(hex(a))
+    a = mon.read(0x8223)
+    print(hex(a))
+      
+    
+    mon.close()
         
-        res = hello(ser)
-        print('# Hello:',res)
-        
-        with open('../6809/monitor_serial.asm.bin','rb') as f:
-            data = f.read()
-            
-        load_run(ser,0x1000,data)
-                        
-        """
-        while True:
-            res = raw_read(ser)
-            print('# RAW',res)
-            time.sleep(1)
-            
-        """
-
-        """ 
-                                
-        write(ser,0xA000,7)
-        
-        write(ser,0xA000,0x15)
-        
-                       
-        res = read(ser,0xA000)        
-        print(hex(res[0]))
-        
-        write(ser,0xA001,0x39)
-        write(ser,0xA001,0x36)
-
-        
-        while True:
-            res = read(ser,0xA000)
-            print(hex(res[0]))
-            time.sleep(1)     
-             
-        with open('../6809/looper.asm.bin','rb') as f:
-            data = f.read()
-            
-        res = load(ser,0x1000,data)
-        print('# LOAD',res)
-        
-        res = execute(ser,0x1000)
-        print('# EXEC',res)
-        
-        for i in range(20):
-            res = raw_read(ser)
-            print('# RAW',res)
-        """        
         
 main()

@@ -63,6 +63,8 @@ pri exec(address)
   writeToRetro(4)
   writeToRetro( (address>>8) & $FF )
   writeToRetro( address & $FF )
+  ' Nothing coming back from the board here
+  ' We left the monitor
 
 pri hello
   writeToRetro(5)
@@ -94,15 +96,17 @@ PUB monitor | i, j, k
       repeat k from 0 to j-1
         dataBuffer[k] := PST.CharIn
       i := load(i,j,@dataBuffer)
+      PST.Char(i)
     elseif i==4   ' EXEC
       i := (PST.CharIn << 8) | PST.CharIn
       exec(i)
-      PST.Char($55)
     elseif i==5   ' HELLO
       i := hello
       PST.Char(i)
     elseif i==6   ' HELLO PROP
       PST.Char($CC) 
+    elseif i==7   ' RAW READ
+      PST.Char(readFromRetro)
     else
       PST.Char($99) 
 

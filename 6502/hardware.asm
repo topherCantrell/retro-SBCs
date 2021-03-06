@@ -1,5 +1,5 @@
-.UART_DATA    = 0x0000
-.UART_CTL     = 0x0001
+.UART_CTL     = 0x0000
+.UART_DATA    = 0x0001
 
 .RIOT_RAM      = 0x0080 ; 80-FF, 128 bytes. Mirrored 180-1FF for stack.
 
