@@ -1,0 +1,84 @@
+#### Labels
+addout           = 0x100E
+funcA            = 0x100F
+funcB            = 0x101A
+funcC            = 0x1023
+funcD            = 0x1030
+sum              = 0x1000
+sumout           = 0x100D
+
+#### Defines
+TMP1             = 0x0080
+TMP2             = 0x0081
+_CPU             = 6809
+
+                  ._CPU = 6809
+                  
+                  .TMP1 = 0x80 ; General purpose 1
+                  .TMP2 = 0x81 ; General purpose 2
+                  
+                  0x1000:
+                  
+                  ; Sum of integers from 1 to A. Return sum in A.
+                  ; For instance, sum(5) = 5 + 4 + 3 + 2 + 1 = 15
+                  ; We use recursion here knowing these two rules:
+                  ;   sum(A) = A + sum(A-1)
+                  ;   sum(1) = 1
+                  sum:
+1000: 81 01            CMPA    #1     ; Is the value 1?
+1002: 27 09            BEQ    sumout  ; Yes ... that is the result
+1004: A7 E2            STA    ,-S     ; Store the original value in a local
+1006: 80 01            SUBA   #1      ; Get the sum ...
+1008: BD 10 00         JSR    sum     ; ... for one less
+100B: AB E0            ADDA   ,S+     ; Add sum(X-1) to sum(X) and remove the local
+                  sumout:
+100D: 39               RTS
+                  
+                  addout:
+100E: 39               RTS
+                  
+                  funcA:
+100F: 86 05            LDA    #5
+1011: 97 80            STA    TMP1
+                  ; ...
+1013: 96 80            LDA    TMP1
+1015: 8B 01            ADDA   #1
+1017: 97 80            STA    TMP1
+                  ; ...
+1019: 39               RTS
+                  
+                  funcB:
+101A: 86 32            LDA    #50
+101C: 97 80            STA    TMP1
+101E: 86 28            LDA    #40
+1020: 97 81            STA    TMP2
+                  ; ...
+1022: 39               RTS
+                  
+                  funcC:
+                  ; ...
+1023: 86 01            LDA    #1
+1025: 97 81            STA    TMP2    ; Using TMP2
+                  ; ...
+1027: BD 10 0F         JSR    funcA   ; funcA mangles TMP1
+102A: BD 10 1A         JSR    funcB   ; funcB mangles TMP1 and TMP2 (oops)
+                  ; ...
+102D: 96 81            LDA    TMP2    ; Our value is gone
+                  ; ...
+102F: 39               RTS
+                  
+                  
+                  funcD:
+                  ; ...
+1030: 86 05            LDA    #5
+1032: A7 E2            STA    ,-S    ; Have to remember which way to go. Stacks decrement.
+                  ; ...
+1034: A6 61            LDA    1,S
+1036: 8B 01            ADDA   #1
+1038: A7 61            STA    1,S
+                  ; ...
+                  ;LDA    ,S+    ; Extra step here ... cleaning up the local variable. this form is better if you need the value and you are cleaning up
+                  ;PULS   A
+103A: 32 61            LEAS   1,S
+                  ;
+103C: 39               RTS

@@ -64,3 +64,7 @@ FFFC - FFFD RESET
 FFFE - FFFF IRQ
  
 ```
+
+# Bread Board 1
+
+![](media/breadBoard1.jpg)
