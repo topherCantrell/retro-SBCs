@@ -90,6 +90,16 @@ FFEF: 8D 82 02         STA    RIOT_B_DATA       ; ... to B
                   
                   here:
 FFF2: 4C F2 FF         JMP    here              ; Endless loop
+
+; A9 xx
+; 4C 80000
+
+; 10101001
+; 01001100 
+; 00000000 
+; 10000000
+; --------
+; 11101101
                   
                   0xFFFA:
 FFFA: E0 FF            .word  top    ; NMI
