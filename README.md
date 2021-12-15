@@ -10,10 +10,10 @@ Single-board 6809, Z80, 6502, etc
 > INFO
 6809B SBC ver 1.21.2
 
-> HELP
+> HELP   # Help is little more than example commands (like below)
 (lots of spew here)
 
-> PEEK 1024
+> PEEK 1024       # Read a single byte from memory
 5F
 
 > PEEK 0x400 4    # Read 4 bytes of memory starting at 0x400
@@ -41,6 +41,7 @@ BYE
 88
 
 > OUT 20 FF # I/O "out" operation (for processors that support it)
+OK
 ```
 
 Case is ignored. Commas are converted to spaces (allows for things like `POKE 10 1,2,3,4`). Underscores "_" in constants are ignored.
