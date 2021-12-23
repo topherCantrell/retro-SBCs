@@ -1,0 +1,184 @@
+#### Labels
+GetInput         = 0x401E
+InitUART         = 0x4064
+Inp01            = 0x4036
+Inp02            = 0x4046
+InpMain          = 0x4024
+Main             = 0x4007
+PrintStr         = 0x4052
+PrintStr1        = 0x405B
+ReadByte         = 0x406F
+TESTSTR          = 0x405C
+Top              = 0x4000
+WriteByte        = 0x4079
+WriteWait        = 0x407B
+
+#### Defines
+ACI_CONTROL      = 0xA000
+ACI_DATA         = 0xA001
+BUFFER           = 0x7E01
+PIA_A_CTRL       = 0x8001
+PIA_A_DATA       = 0x8000
+PIA_B_CTRL       = 0x8003
+PIA_B_DATA       = 0x8002
+STACK            = 0x8000
+TMP1             = 0x7F00
+_CPU             = 6809
+
+                  ._CPU = 6809
+                  .STACK = 0x8000
+                  .BUFFER = 0x7E01
+                  .TMP1 = 0x7F00
+                  
+                  ; Memory Map
+                  ;
+                  ; 0000 - 7FFF RAM
+                  ; 8000 - 8003 PIA
+                  ; A000 - A001 UART
+                  ; C000 - FFFF ROM
+                  
+                  ; PIA
+                  .PIA_A_DATA = 0x8000  ; 100x_xxxx_xxxx_xx00
+                  .PIA_A_CTRL = 0x8001  ; 100x_xxxx_xxxx_xx01
+                  .PIA_B_DATA = 0x8002  ; 100x_xxxx_xxxx_xx10
+                  .PIA_B_CTRL = 0x8003  ; 100x_xxxx_xxxx_xx11
+                  ; TODO: bit breakdowns of control
+                  
+                  ; ACI
+                  .ACI_CONTROL = 0xA000  ; 101x_xxxx_xxxx_xxx0
+                  .ACI_DATA = 0xA001     ; 101x_xxxx_xxxx_xxx1
+                  ; Write to control:
+                  ;   I_TT_WWW_CC
+                  ;   I =   0: receive interrupt disabled
+                  ;         1: receive interrupt enabled
+                  ;   T =  00: RTS=low, transmit interrupt disabled
+                  ;        01: RTS=low, transmit interrupt enabled
+                  ;        10: RTS=high, transmit interrupt disabled
+                  ;        11: RTS=low, transmit a break, transmit interrupt disabled
+                  ;   W = 000: 7E2
+                  ;       001: 7O2
+                  ;       010: 7E1
+                  ;       011: 7O1
+                  ;       100: 8N2
+                  ;       101: 8N1
+                  ;       110: 8E1
+                  ;       111: 8O1
+                  ;   C =  00: divide by 1
+                  ;        01: divide by 16
+                  ;        10: divide by 64
+                  ;        11: master reset
+                  ; Read from control:
+                  ;  bit
+                  ;   0 = 1: receive data register full (1 means you can read)
+                  ;   1 = 1: transmit data register empty (1 means you can write)
+                  ;   2 = 1: data carrier detect
+                  ;   3 = 1: clear to send
+                  ;   4 = 1: framing error
+                  ;   5 = 1: receiver overrun
+                  ;   6 = 1: parity error
+                  ;   7 = 1: interrupt request
+                  ;
+                  ; For my environment: 0_00_101_01
+                  ;   I =   0: Receive interrupts off
+                  ;   T =  00: Transmit interrupt off
+                  ;   W = 101: 8N1
+                  ;   C =  01: Divide by 16 (115200)
+                  
+                  ; ROM vectors:
+                  ; 0xFFF0:
+                  ;    .word ????  ; FFF0: 6809 exceptions
+                  ;    .word ????  ; FFF2: SWI3
+                  ;    .word ????  ; FFF4: SWI2
+                  ;    .word ????  ; FFF6: FIRQ
+                  ;    .word ????  ; FFF8: IRQ
+                  ;    .word ????  ; FFFA: SWI
+                  ;    .word ????  ; FFFC: NMI
+                  ;    .word ????  ; FFFE: RESET
+                  
+                  0x4000:     ; Compiled to RAM (development)
+                  ; 0xC000:   ; Compiled to ROM
+                  
+                  Top:
+4000: 10 CE 80 00      LDS    #STACK      ; Initialize the stack
+4004: BD 40 64         JSR    InitUART    ; Initialize the UART
+                  
+                  Main:
+4007: BD 40 1E         JSR    GetInput    ; Get a line of input from the user
+400A: 8E 40 5C         LDX    #TESTSTR
+400D: BD 40 52         JSR    PrintStr
+4010: 8E 7E 02         LDX    #BUFFER+1
+4013: BD 40 52         JSR    PrintStr
+4016: 8E 40 5C         LDX    #TESTSTR
+4019: BD 40 52         JSR    PrintStr
+401C: 20 E9            BRA    Main
+                  
+                  GetInput:
+                  ; Read an input line from the UART. Echo back the chars to the UART.
+                  ; Limit the buffer to 256 bytes. Don't backspace before beginning.
+401E: 7F 7E 01         CLR    BUFFER           ; Make a ...
+4021: 8E 7E 02         LDX    #BUFFER+1        ; ... leading 0
+                  InpMain:
+4024: BD 40 6F         JSR    ReadByte         ; Get the input character
+4027: 81 0D            CMPA   #0x0D            ; Is this ENTER key?
+4029: 26 0B            BNE    Inp01            ; No ... process it
+402B: 6F 80            CLR    ,X+              ; Null terminate the buffer
+402D: BD 40 79         JSR    WriteByte        ; Send a return
+4030: 86 0A            LDA    #0x0A            ; Send a ...
+4032: BD 40 79         JSR    WriteByte        ; ... new-line to terminal
+4035: 39               RTS                     ; Done
+                  Inp01:
+4036: 81 08            CMPA   #0x08            ; Is this BACKSPACE?
+4038: 26 0C            BNE    Inp02            ; No ... try others
+403A: 8C 7E 01         CMPX   #BUFFER          ; Any characters to remove?
+403D: 27 E5            BEQ    InpMain          ; No ... just ig nore this
+403F: 30 1F            LEAX   -1,X             ; Back up over last character
+4041: BD 40 79         JSR    WriteByte        ; Echo the BACKSPACE on the terminal
+4044: 20 DE            BRA    InpMain          ; Continue
+                  Inp02:
+4046: 8C 7E 21         CMPX   #BUFFER+32       ; Is the buffer full (leaving space for NULL)
+4049: 27 D9            BEQ    InpMain          ; Yes ... ignore
+404B: A7 80            STA    ,X+              ; Add the character to the buffer
+404D: BD 40 79         JSR    WriteByte        ; Echo the character on the terminal
+4050: 20 D2            BRA    InpMain          ; Continue
+                  
+                  PrintStr:
+4052: A6 80            LDA    ,X+          ; Next character from string
+4054: 27 05            BEQ    PrintStr1    ; Null terminator ... done
+4056: BD 40 79         JSR    WriteByte    ; Print the character
+4059: 20 F7            BRA    PrintStr     ; Do them all
+                  PrintStr1:
+405B: 39               RTS
+                  
+                  TESTSTR:
+405C: 48 65 6C 6C 6F 0D 0A 00 .byte  "Hello",13,10,0
+                  
+                  InitUART:
+                  ; 8N1@115200
+4064: 86 07            LDA    #0x7             ; Master reset
+4066: B7 A0 00         STA    ACI_CONTROL      ; Reset the UART
+4069: 86 15            LDA    #0x15            ; 8N1 + divide by 16
+406B: B7 A0 00         STA    ACI_CONTROL      ; Configure communications
+406E: 39               RTS
+                  
+                  ReadByte:
+                  ; Wait for a byte from the UART.
+                  ; Return in A
+406F: B6 A0 00         LDA    ACI_CONTROL      ; Data ...
+4072: 44               LSRA                    ; ... available?
+4073: 24 FA            BCC    ReadByte         ; No ... wait
+4075: B6 A0 01         LDA    ACI_DATA         ; Get the data
+4078: 39               RTS
+                  
+                  WriteByte:
+                  ; Wait for UART to be ready.
+                  ; Send byte to UART from A
+4079: 34 02            PSHS   A                ; Hold the output value
+                  WriteWait:
+407B: B6 A0 00         LDA    ACI_CONTROL      ; Buffer ...
+407E: 44               LSRA                    ; ... is ...
+407F: 44               LSRA                    ; ... full?
+4080: 24 F9            BCC    WriteWait        ; Yes ... wait
+4082: 35 02            PULS   A                ; Restore the output value
+4084: B7 A0 01         STA    ACI_DATA         ; Send the data
+4087: 39               RTS
+                  

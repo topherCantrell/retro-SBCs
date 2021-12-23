@@ -7,7 +7,7 @@ class MonitorError(Exception):
 class Monitor:
     
     def __init__(self,port_name):
-        self._ser = serial.Serial('COM7',115200)
+        self._ser = serial.Serial(port_name,115200)
         
     def close(self):
         self._ser.close()
@@ -81,8 +81,13 @@ class Monitor:
     
         
 def main():
-    mon = Monitor('COM7')
+    mon = Monitor('COM4')
     a = mon.hello()
+
+    print(a)
+
+
+    """
     
     a = mon.read(0xFF59)
     print(hex(a))
@@ -110,6 +115,7 @@ def main():
       
     
     mon.close()
+    """
         
         
 main()
