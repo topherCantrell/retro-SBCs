@@ -12,14 +12,14 @@ tiles.
 
 ## Serial Commands
 
-`mode(m)` Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
+`mode(m)` 128,m: Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
 
-`setTile(n,data)` Set the pixel data for the given tile
+`setTile(n,data)` 129,n,128_bytes: Set the pixel data for the given tile
 
-`setMap(x,y,value)` Set the display map to the given value
+`setMap(x,y,value)` 130,x,y,v: Set the display map to the given value
 
-`setView(x,y)` Set the viewport coordinates
+`setView(x,y)` 131,x,y: Set the viewport coordinates
 
-`fill(x1,y1,width,height,value)` Fill a rectangle of the world map
+`fill(x1,y1,width,height,value)` 132,x1,y1,w,h,v: Fill a rectangle of the world map
 
-`update()` Update the display (changes are kept internally until this is called)
+`update()` 133: Update the display (changes are kept internally until this is called)
