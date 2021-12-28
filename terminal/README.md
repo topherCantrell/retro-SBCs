@@ -1,4 +1,4 @@
-# Tile Engine
+# Serial Tile Engine
 
 The tile engine renders a map of 32x18 tiles on the PI monitor. Each tile is 32x32 pixels.
 
@@ -10,7 +10,7 @@ tiles.
 
 ![](tiles.jpg)
 
-## Commands
+## Serial Commands
 
 `mode(m)` Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
 
