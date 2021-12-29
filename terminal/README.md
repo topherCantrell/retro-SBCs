@@ -1,6 +1,8 @@
 # Serial Tile Engine
 
-The tile engine renders a map of 32x18 tiles on the PI monitor. Each tile is 32x32 pixels.
+The tile engine renders a rectangular map of tiles on the PI monitor. Each tile is 32x32 pixels. The
+controller configures the width, height, screen-x, and screen-y of the rendered map. Any non-rendered
+tile is filled with tile 0.
 
 The tile engine maintains an internal world buffer of 64x36 tiles. The controller sets the X,Y
 of the viewport.
@@ -16,10 +18,12 @@ tiles.
 
 `setTile(n,data)` 129,n,128_bytes: Set the pixel data for the given tile
 
-`setMap(x,y,value)` 130,x,y,v: Set the display map to the given value
+`setMap(worldx,worldy,value)` 130,x,y,v: Set the display map to the given value
 
-`setView(x,y)` 131,x,y: Set the viewport coordinates
+`configureView(screenx,screeny,width,height)` 131: screenx,screeny,width,height
 
-`fill(x1,y1,width,height,value)` 132,x1,y1,w,h,v: Fill a rectangle of the world map
+`setView(worldx,worldy)` 132,x,y: Set the viewport coordinates
 
-`update()` 133: Update the display (changes are kept internally until this is called)
+`fill(worldx1,worldy1,width,height,value)` 133,x1,y1,w,h,v: Fill a rectangle of the world map
+
+`update()` 134: Update the display (changes are kept internally until this is called)
