@@ -3,6 +3,7 @@ import getkey
 import serial
 import threading
 import socket
+import time
 
 ser = serial.Serial('/dev/ttyUSB0',baudrate=115200)
 
@@ -15,6 +16,11 @@ def watchSBC():
             print(c.decode(),end='')
 
 def watchKeyboard():
+    time.sleep(1)
+    ser.write(b'\x0D')
+    time.sleep(0.25)    
+    ser.write(b'HELP\x0D')
+    time.sleep(0.25)
     while True:
         key = getkey.getkey()
         if len(key)>1:
