@@ -19,16 +19,20 @@
             padding:0px;
             margin:0px; 
             border: none;                       
-            font-family: monospace;
-            font-size: 14.4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13.2px;
             background-color: black;
             color: #33FF00;
+            word-break: break-all;
+            white-space: break-spaces;
         }        
     </style>
   </head>
   
   <body style="background-color: black">
-      <textarea id="viewText" class="view" onkeydown="handleKey(event)" readonly autofocus></textarea>
+      <textarea id="viewText" class="view"
+          cols="80" rows="16" onkeydown="handleKey(event)" 
+          readonly autofocus></textarea>
       <script src="terminal.js"></script>
   </body>
 
