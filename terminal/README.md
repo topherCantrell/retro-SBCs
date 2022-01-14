@@ -6,7 +6,7 @@ There are 4 view ports that can be configured separately. The controller configu
 height, screen-x, and screen-y of the rendered map. Any non-rendered tile is filled with the
 configured tile.
 
-The tile engine maintains an internal world buffer of 64x36 tiles. The controller sets the X,Y
+The tile engine maintains an internal world buffer of 64x32 tiles. The controller sets the X,Y
 of the viewport.
 
 The tile engine has a list of 256 tiles. The controller uploads the pixel data for the
@@ -14,7 +14,22 @@ tiles.
 
 ![](tiles.jpg)
 
-## Serial Commands
+## 6809 library
+
+Display buffers:
+  - 0x4000 - 0x05FF
+  - 0x0600 - 0x07FF
+
+Control structure: 0x0800 - 0x08FF
+
+World map: 0x0900 - 0x10FF
+```
+- dx, dy, vx, vy, width, height, _, _,
+- dx, dy, vx, vy, width, height, _, _,
+- dx, dy, vx, vy, width, height, _, _,
+- dx, dy, vx, vy, width, height, _, _,
+- backTile
+```
 
 `mode(m)` 128,m: Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
 
