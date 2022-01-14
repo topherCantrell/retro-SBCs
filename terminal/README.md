@@ -24,11 +24,11 @@ Control structure: 0x0800 - 0x08FF
 
 World map: 0x0900 - 0x10FF
 ```
-- dx, dy, vx, vy, width, height, _, _,
-- dx, dy, vx, vy, width, height, _, _,
-- dx, dy, vx, vy, width, height, _, _,
-- dx, dy, vx, vy, width, height, _, _,
-- backTile
+- width, height, dx, dy, vx, vy, _, _,
+- width, height, dx, dy, vx, vy, _, _,
+- width, height, dx, dy, vx, vy, _, _,
+- width, height, dx, dy, vx, vy, _, _,
+- backTile, activeDisplayPage
 ```
 
 `mode(m)` 128,m: Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
