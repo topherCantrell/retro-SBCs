@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
+  <head>    
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">    
-    <title>Test</title>
+    <title>SBC</title>
 
     <!-- touch screen is 640x480 -->
 
@@ -25,15 +24,35 @@
             color: #33FF00;
             word-break: break-all;
             white-space: break-spaces;
-        }        
+        }     
+        .upload {
+          background-color: white;
+          position: absolute;
+            top: 480px;
+            left: 0px;
+            width: 638px;
+            height: 100px;            
+        }   
     </style>
   </head>
   
   <body style="background-color: black">
+
       <textarea id="viewText" class="view"
           cols="80" rows="16" onkeydown="handleKey(event)" 
           readonly autofocus></textarea>
+      
+      <div class="upload" id="upForm" style="display: none">        
+          <input id="binaryfile" type="file"><br>
+          <input id="cbUpload" type="checkbox"> Upload to:
+          <input id="address1" type="text"><br>
+          <input id="cbExecute" type="checkbox"> Execute:
+          <input id="address2" type="text"><br>
+          <button onclick="uploadData()">Submit</button>        
+      </div>
+
       <script src="terminal.js"></script>
+
   </body>
 
 </html>

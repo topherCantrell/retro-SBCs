@@ -1,15 +1,29 @@
 ._CPU = 6809
 
-0xFF00:
+.include hardware.asm
 
-top:
+0x4000:
+    LDA    #0
+here:
+    BSR    WriteByte
+    INCA 
+    BRA    here
     
-    LDX   #5
-    EXG   A,  B
-    PSHS  Y, X, B, A
-    PULS  A, B, X, Y, PC
+ReadByte:
+    LDA    ACI_CONTROL      ; Data ...
+    LSRA                    ; ... available?
+    BCC    ReadByte         ; No ... wait
+    LDA    ACI_DATA         ; Get the data
+    RTS
 
-    JMP [0x100]
-
-    NOP
+WriteByte:
+    PSHS   A                ; Hold the output value
+WriteWait:
+    LDA    ACI_CONTROL      ; Buffer ...
+    LSRA                    ; ... is ...
+    LSRA                    ; ... full?
+    BCC    WriteWait        ; Yes ... wait
+    PULS   A                ; Restore the output value
+    STA    ACI_DATA         ; Send the data
+    RTS
 

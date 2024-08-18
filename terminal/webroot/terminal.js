@@ -85,6 +85,35 @@ function onStart() {
     ws = new WebSocket('ws://'+document.location.host+'/web-socket')
     ws.onopen = onOpen
     ws.onmessage = showKey
+
+    if(document.location.host!='localhost') {
+        div = document.getElementById('upForm')
+        div.style.display='block'
+    }
+}
+
+function gotReply(data) {
+    // This is where the upload response eventually gets to after
+    // all the asynchronous promises.
+    console.log(data)      
+}
+
+function uploadData() {    
+    var formData = new FormData()    
+    var info = {
+        method: "POST", 
+        body: formData
+    }
+    formData.append("binaryfile", binaryfile.files[0])
+    formData.append("upload", cbUpload.checked)
+    formData.append("execute", cbExecute.checked)
+    formData.append("address1", address1.value)
+    formData.append("address2", address2.value)
+    fetch('/upload',info)
+    .then(resp => {
+        return resp.text();
+    })
+    .then(gotReply)   
 }
 
 onStart()

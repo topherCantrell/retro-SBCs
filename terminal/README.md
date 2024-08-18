@@ -1,31 +1,62 @@
-# Serial Tile Engine
+# retro-boards
 
-The tile engine renders a rectangular map of tiles on the PI monitor. Each tile is 32x32 pixels. 
+Single-board 6809, Z80, 6502, etc
 
-There are 4 view ports that can be configured separately. The controller configures the width, 
-height, screen-x, and screen-y of the rendered map. Any non-rendered tile is filled with the
-configured tile.
+# Monitor Program
 
-The tile engine maintains an internal world buffer of 64x36 tiles. The controller sets the X,Y
-of the viewport.
+```
+# This is a comment line in case you ever need comments
 
-The tile engine has a list of 256 tiles. The controller uploads the pixel data for the
-tiles.
+> INFO
+6809B SBC ver 1.21.2
 
-![](tiles.jpg)
+> HELP   # Help is little more than example commands (like below)
+(lots of spew here)
 
-## Serial Commands
+> PEEK 1024       # Read a single byte from memory
+5F
 
-`mode(m)` 128,m: Set the display operating mode. 0=plain text background (no tile engine), 1=tile engine
+> PEEK 0x400 4    # Read 4 bytes of memory starting at 0x400
+5F 60 7B 11
 
-`setTile(n,data)` 129,n,128_bytes: Set the pixel data for the given tile
+> DUMP 0x40D 5    # Memory dump format 5 bytes of memory starting at 40D
+      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | ASCII
+0400: -- -- -- -- -- -- -- -- -- -- -- -- -- 12 30 00 |              ...
+0410: 38 5B -- -- -- -- -- -- -- -- -- -- -- -- -- -- | 8[
 
-`setMap(worldx,worldy,value)` 130,x,y,v: Set the display map to the given value
+> POKE 0x400 0b11_00_11_00  # Poke a single value to 0x400
+OK
 
-`configureView(n,screenx,screeny,width,height,blanktile)` 131: n,screenx,screeny,width,height,blanktile
+> POKE 0x400 10 20 55 60 88 # Poke 5 values into memory starting at 0x400
+OK
 
-`setView(n,worldx,worldy)` 132,n,x,y: Set the viewport coordinates
+> LOAD 0x400 255 # Read 255 bytes of data from the stream and store in memory (intended for an external program to load code)
+(...255 bytes read from stream..)
+CHK 17D
 
-`fill(worldx1,worldy1,width,height,value)` 133,n,x1,y1,w,h,v: Fill a rectangle of the world map
+> EXEC 49152  # Execute the code at 49152
+BYE
 
-`update()` 134: Update the display (changes are kept internally until this is called)
+> IN 20  # I/O "in" operation (for processors that support it)
+88
+
+> OUT 20 FF # I/O "out" operation (for processors that support it)
+OK
+```
+
+Case is ignored. Commas are converted to spaces (allows for things like `POKE 10 1,2,3,4`). Underscores "_" in constants are ignored.
+
+Value bases:
+- `1234` decimal
+- `0xBEEF` hex
+- `0b11001111` binary 
+
+Error message examples:
+
+```
+- UNKNOWN COMMAND
+- INVALID BYTE: 1B77
+- INVALID WORD: hello
+- TOO MANY VALUES GIVEN
+- NOT ENOUGH VALUES GIVEN
+```
