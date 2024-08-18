@@ -1,62 +1,50 @@
-# retro-boards
 
-Single-board 6809, Z80, 6502, etc
+# Single Board Computers in many flavors
 
-# Monitor Program
+All point-to-point wired on breadboards.
 
-```
-# This is a comment line in case you ever need comments
+## 6502
 
-> INFO
-6809B SBC ver 1.21.2
+<img src="art/6502-top.jpg" alt="6502 Top" height="300"/>
+<img src="art/6502-bottom.jpg" alt="6502 Bottom" height="300"/>
 
-> HELP   # Help is little more than example commands (like below)
-(lots of spew here)
+  - CPU: 65C02 running at 2MHz
+  - RAM: 32K (plus 128 bytes in RIOT chip)
+  - ROM: 32K (4 banks of 8K switchable by jumpers or software)
+  - IO: 6532 Riot chip (used by Atari2100)
+  - Serial: 6850ACIA
 
-> PEEK 1024       # Read a single byte from memory
-5F
+Complete info on the [6502](/6502/README.md) computer.
 
-> PEEK 0x400 4    # Read 4 bytes of memory starting at 0x400
-5F 60 7B 11
+## Atari 2600 Cartridge Hack
 
-> DUMP 0x40D 5    # Memory dump format 5 bytes of memory starting at 40D
-      00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F | ASCII
-0400: -- -- -- -- -- -- -- -- -- -- -- -- -- 12 30 00 |              ...
-0410: 38 5B -- -- -- -- -- -- -- -- -- -- -- -- -- -- | 8[
+[Atari 2600 Cartridge](/atari2600/README.md)
 
-> POKE 0x400 0b11_00_11_00  # Poke a single value to 0x400
-OK
+## 6809
 
-> POKE 0x400 10 20 55 60 88 # Poke 5 values into memory starting at 0x400
-OK
+<img src="art/6809-top.jpg" alt="6809 Top" height="300"/>
+<img src="art/6809-bottom.jpg" alt="6809 Bottom" height="300"/>
 
-> LOAD 0x400 255 # Read 255 bytes of data from the stream and store in memory (intended for an external program to load code)
-(...255 bytes read from stream..)
-CHK 17D
+  - CPU: 68B09 running at 7.3728MHz
+  - RAM: 32K 
+  - ROM: 32K (2 banks of 16K switchable by jumpers)
+  - IO: 6821 PIA (used by TRS80 Color Computer)
+  - Serial: 6850ACIA
 
-> EXEC 49152  # Execute the code at 49152
-BYE
+Complete info on the [6809](/6809/README.md)
 
-> IN 20  # I/O "in" operation (for processors that support it)
-88
+## Z80
 
-> OUT 20 FF # I/O "out" operation (for processors that support it)
-OK
-```
+TBD
 
-Case is ignored. Commas are converted to spaces (allows for things like `POKE 10 1,2,3,4`). Underscores "_" in constants are ignored.
+## 8086 (V20)
 
-Value bases:
-- `1234` decimal
-- `0xBEEF` hex
-- `0b11001111` binary 
+TBD
 
-Error message examples:
+## Assemblers
 
-```
-- UNKNOWN COMMAND
-- INVALID BYTE: 1B77
-- INVALID WORD: hello
-- TOO MANY VALUES GIVEN
-- NOT ENOUGH VALUES GIVEN
-```
+TODO link to opcodetools
+
+## Monitor program
+
+TODO
