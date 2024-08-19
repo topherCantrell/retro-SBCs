@@ -62,12 +62,6 @@ EEPROM through this window.
 
 <img src="cartmod2_temp.jpg" width=800>
 
-# Programmer and Eraser
-
-https://www.amazon.com/PRG-113-GQ-universal-programmer-Adapter/dp/B011HVON3A
-
-<img src="programmer.jpg" width=800>
-
 # The DoubleGap Game
 
 <img src="double.jpg" width=500>

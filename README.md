@@ -41,6 +41,15 @@ TBD
 
 TBD
 
+# Programmer and Eraser
+
+There are easier-to-use programmable ROMs these days. You can use an electrically erasable
+programmable ROM instead of a UV erasable. 
+
+https://www.amazon.com/PRG-113-GQ-universal-programmer-Adapter/dp/B011HVON3A
+
+<img src="programmer.jpg" width=800>
+
 ## Assemblers
 
 TODO link to opcodetools

@@ -82,3 +82,9 @@ FFFA - FFFB NMI   Interrupt vector
 FFFC - FFFD RESET Interrupt vector
 FFFE - FFFF IRQ   Interrupt vector
 ```
+
+# Software
+  - [hardware.asm](hardware.asm) - include file defines for the hardware
+  - [first.asm](first.asm) - simple program to write to the I/O ports (test with a meter)
+  - [second.asm](second.asm) - I/O test but uses the stack to test RAM
+  - [monitor.asm](monitor.asm) - Serial monitor program
