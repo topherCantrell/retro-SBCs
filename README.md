@@ -9,8 +9,8 @@ All point-to-point wired on breadboards.
 <img src="art/6502-bottom.jpg" alt="6502 Bottom" height="300"/>
 
   - CPU: 65C02 running at 2MHz
-  - RAM: 16K (32K as two banks of 16K switchable by jumpers or software plus 128 bytes in RIOT chip)
-  - ROM: 16K (32K as two banks of 16K switchable by jumpers or software)
+  - RAM: 16K (total of 32K as two banks of 16K switchable by jumpers or software plus 128 bytes in RIOT chip)
+  - ROM: 16K (total of 32K as two banks of 16K switchable by jumpers or software)
   - IO: 6532 Riot chip (used by Atari2100)
   - Serial: 6850ACIA
 
@@ -27,7 +27,7 @@ Complete info on the [6502](/6502/README.md) computer.
 
   - CPU: 68B09 running at 7.3728MHz
   - RAM: 32K 
-  - ROM: 16K (32K as two banks of 16K switchable by jumpers or software)
+  - ROM: 16K (total of 32K as two banks of 16K switchable by jumpers or software)
   - IO: 6821 PIA (used by TRS80 Color Computer)
   - Serial: 6850ACIA
 
@@ -35,7 +35,11 @@ Complete info on the [6809](/6809/README.md)
 
 ## Z80
 
-TBD
+  - CPU: Z80A running at 7.3728MHz
+  - RAM: 16K (total of 32K as two banks of 16K switchable by jumpers or software)
+  - ROM: 16K (total of 32K as two banks of 16K switchable by jumpers or software)
+  - IO: Z84C20 (PIO)
+  - Serial: 6850ACIA
 
 ## 8086 (V20)
 
