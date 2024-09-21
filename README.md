@@ -1,4 +1,3 @@
-
 # Single Board Computers in many flavors
 
 All point-to-point wired on breadboards.
@@ -52,7 +51,7 @@ programmable ROM instead of a UV erasable.
 
 https://www.amazon.com/PRG-113-GQ-universal-programmer-Adapter/dp/B011HVON3A
 
-<img src="programmer.jpg" width=800>
+<img src="art/programmer.jpg" width=800>
 
 ## Assemblers
 
